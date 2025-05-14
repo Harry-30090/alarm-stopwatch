@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Alarm Stopwatch</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f0f0f0;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #setAlarmBtn {
+      font-size: 24px;
+      padding: 15px 30px;
+      cursor: pointer;
+    }
+
+    #stopwatch {
+      font-size: 100px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="setAlarmBtn">Set Alarm for 7:00 AM</button>
+  <div id="stopwatch">00:00:00</div>
+  <audio id="alarmSound" src="alarm.mp3" loop></audio>
+
+  <script>
+    const setAlarmBtn = document.getElementById('setAlarmBtn');
+    const alarmSound = document.getElementById('alarmSound');
+    const stopwatchDisplay = document.getElementById('stopwatch');
+
+    let stopwatchInterval = null;
+    let startTime = null;
+    let alarmTimeout = null;
+
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function startStopwatch() {
+      stopwatchDisplay.style.display = 'block';
+      startTime = Date.now();
+      stopwatchInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        stopwatchDisplay.textContent = formatTime(elapsed);
+      }, 1000);
+    }
+
+    function stopAlarmAndStopwatch() {
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+      stopwatchDisplay.style.display = 'block';
+    }
+
+    setAlarmBtn.addEventListener('click', () => {
+      setAlarmBtn.style.display = 'none';
+
+      const now = new Date();
+      const alarmTime = new Date();
+      alarmTime.setHours(7, 0, 0, 0);
+      if (alarmTime <= now) {
+        alarmTime.setDate(alarmTime.getDate() + 1);
+      }
+      console.log('Alarm time:', alarmTime);
+
+      const timeUntilAlarm = alarmTime - now;
+      alert('Alarm set for 7:00 AM');
+
+      if (alarmTimeout) clearTimeout(alarmTimeout);
+
+      alarmTimeout = setTimeout(() => {
+        alarmSound.play();
+        startStopwatch();
+      }, timeUntilAlarm);
+    });
+
+    document.body.addEventListener('click', stopAlarmAndStopwatch);
+    document.body.addEventListener('touchstart', stopAlarmAndStopwatch);
+  </script>
+
+</body>
+</html>
