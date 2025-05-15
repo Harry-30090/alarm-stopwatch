@@ -33,7 +33,7 @@
 <body>
 
   <button id="setAlarmBtn">Set Alarm for 7:00 AM</button>
-  <div id="stopwatch">00:00:00</div>
+  <div id="stopwatch">00:00:00.000</div>
   <audio id="alarmSound" src="alarm.mp3" loop></audio>
 
   <script>
@@ -46,36 +46,40 @@
     let alarmTimeout = null;
 
     function formatTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-      const seconds = String(totalSeconds % 60).padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
-    }
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+    const milliseconds = String(ms % 1000).padStart(3, '0');
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
 
     function startStopwatch() {
-      stopwatchDisplay.style.display = 'block';
-      startTime = Date.now();
-      stopwatchInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        stopwatchDisplay.textContent = formatTime(elapsed);
-      }, 1000);
-    }
+  stopwatchDisplay.style.display = 'block';
+  startTime = Date.now();
+  stopwatchInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    stopwatchDisplay.textContent = formatTime(elapsed);
+  }, 50);
+  alarmStarted = true; // Set flag when alarm/stopwatch starts
+}
 
-    function stopAlarmAndStopwatch() {
-      alarmSound.pause();
-      alarmSound.currentTime = 0;
-      clearInterval(stopwatchInterval);
-      stopwatchInterval = null;
-      stopwatchDisplay.style.display = 'block';
-    }
+function stopAlarmAndStopwatch() {
+  if (!alarmStarted) return; // Only run if alarm has started
+  alarmSound.pause();
+  alarmSound.currentTime = 0;
+  clearInterval(stopwatchInterval);
+  stopwatchInterval = null;
+  stopwatchDisplay.style.display = 'block';
+  alarmStarted = false; // Reset flag
+}
 
     setAlarmBtn.addEventListener('click', () => {
       setAlarmBtn.style.display = 'none';
 
       const now = new Date();
       const alarmTime = new Date();
-      alarmTime.setHours(7, 0, 0, 0);
+      alarmTime.setHours(18, 36, 0, 0);
       if (alarmTime <= now) {
         alarmTime.setDate(alarmTime.getDate() + 1);
       }
